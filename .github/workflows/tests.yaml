@@ -8,7 +8,7 @@ on:
     - master
 
 jobs:
-  kind:
+  unit_test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -18,7 +18,18 @@ jobs:
       run: |
         make test
         make vet
+  acc_test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform_version: 
+        - "0.12.29"
+        - "0.13.5"
+        - "0.14.0-rc1"
+    steps:
     - uses: engineerd/setup-kind@v0.3.0
     - name: Acceptance Tests
+      env: 
+        TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform_version }}
       run: |
-        make testacc KUBE_CONFIG_PATH="${HOME}/.kube/config"
+        KUBE_CONFIG_PATH="${HOME}/.kube/config" make testacc 
